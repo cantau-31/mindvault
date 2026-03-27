@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from './auth/auth.module';
 import { AiModule } from './ai/ai.module';
@@ -9,6 +9,10 @@ import { SharedModule } from './shared/shared.module';
 import { NoteSchema } from './schemas/note.schema';
 import { CollectionSchema } from './schemas/collection.schema';
 import { CommentSchema } from './schemas/comment.schema';
+
+function sanitizeMongoUri(rawUri: string): string {
+  return rawUri.trim().replace(/^['"]|['"]$/g, '');
+}
 
 // ===================================================
 // STARTER KIT — Projet IPSSI MERN & TypeScript
@@ -33,7 +37,34 @@ import { CommentSchema } from './schemas/comment.schema';
     }),
 
     // 2. Connexion MongoDB Atlas
-    MongooseModule.forRoot(process.env.MONGODB_URI || ''),
+    MongooseModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => {
+        const rawMongoUri =
+          configService.get<string>('MONGODB_URI') ||
+          configService.get<string>('MONGO_URI') ||
+          configService.get<string>('DATABASE_URL') ||
+          '';
+        const mongoUri = sanitizeMongoUri(rawMongoUri);
+
+        if (!mongoUri) {
+          throw new Error(
+            'Missing MongoDB URI. Set MONGODB_URI (or MONGO_URI / DATABASE_URL).',
+          );
+        }
+
+        if (
+          !mongoUri.startsWith('mongodb://') &&
+          !mongoUri.startsWith('mongodb+srv://')
+        ) {
+          throw new Error(
+            `Invalid MongoDB URI scheme for value "${mongoUri.slice(0, 32)}...". Expected "mongodb://" or "mongodb+srv://".`,
+          );
+        }
+
+        return { uri: mongoUri };
+      },
+    }),
 
     // 3. Modèles MongoDB (MindVault)
     MongooseModule.forFeature([
