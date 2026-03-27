@@ -8,6 +8,7 @@ import { InjectConnection } from '@nestjs/mongoose';
 import { Collection, ObjectId } from 'mongodb';
 import { Connection } from 'mongoose';
 import { randomBytes } from 'crypto';
+import { AiService } from '../ai/ai.service';
 import { CreateNoteDto } from './dto/create-note.dto';
 import { UpdateNoteDto } from './dto/update-note.dto';
 
@@ -28,7 +29,10 @@ type NoteDocument = {
 export class NotesService {
   private readonly notesCollection: Collection<NoteDocument>;
 
-  constructor(@InjectConnection() private readonly connection: Connection) {
+  constructor(
+    @InjectConnection() private readonly connection: Connection,
+    private readonly aiService: AiService,
+  ) {
     this.notesCollection = this.connection.collection<NoteDocument>('notes');
   }
 
@@ -138,6 +142,21 @@ export class NotesService {
     );
 
     return { shareToken };
+  }
+
+  async summarize(
+    userId: string,
+    noteId: string,
+  ): Promise<{ summary: string }> {
+    const note = await this.findOwnedNoteOrThrow(userId, noteId);
+    const text = (note.content ?? '').trim() || note.title.trim();
+
+    if (!text) {
+      throw new BadRequestException('Note content is empty');
+    }
+
+    const summary = await this.aiService.summarize(text);
+    return { summary };
   }
 
   private async findOwnedNoteOrThrow(

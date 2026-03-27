@@ -69,4 +69,9 @@ export class NotesController {
   share(@Req() req: AuthenticatedRequest, @Param('id') id: string) {
     return this.notesService.share(req.user.userId, id);
   }
+
+  @Post(':id/summarize')
+  summarize(@Req() req: AuthenticatedRequest, @Param('id') id: string) {
+    return this.notesService.summarize(req.user.userId, id);
+  }
 }
