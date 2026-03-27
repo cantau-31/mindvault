@@ -1,35 +1,33 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import LoginPage from './pages/LoginPage'
-import RegisterPage from './pages/RegisterPage'
-import DashboardPage from './pages/DashboardPage'
-import AskAiPage from './pages/AskAiPage'
-import PrivateRoute from './components/PrivateRoute'
+import { Navigate, Route, Routes } from 'react-router-dom';
+import PrivateRoute from './components/PrivateRoute';
+import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
+import NotesListPage from './pages/NotesListPage';
+import CreateNotePage from './pages/CreateNotePage';
+import EditNotePage from './pages/EditNotePage';
+import { authService } from './services/authService';
 
-function App() {
+const App = () => {
+  const isAuthenticated = authService.isAuthenticated();
+
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route
-          path="/dashboard"
-          element={
-            <PrivateRoute>
-              <DashboardPage />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/ask"
-          element={
-            <PrivateRoute>
-              <AskAiPage />
-            </PrivateRoute>
-          }
-        />
-      </Routes>
-    </BrowserRouter>
-  )
-}
+    <Routes>
+      <Route path="/" element={<Navigate to={isAuthenticated ? '/notes' : '/login'} replace />} />
+      <Route path="/login" element={isAuthenticated ? <Navigate to="/notes" replace /> : <LoginPage />} />
+      <Route
+        path="/register"
+        element={isAuthenticated ? <Navigate to="/notes" replace /> : <RegisterPage />}
+      />
 
-export default App
+      <Route element={<PrivateRoute />}>
+        <Route path="/notes" element={<NotesListPage />} />
+        <Route path="/notes/create" element={<CreateNotePage />} />
+        <Route path="/notes/:id/edit" element={<EditNotePage />} />
+      </Route>
+
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  );
+};
+
+export default App;
