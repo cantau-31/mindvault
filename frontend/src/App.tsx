@@ -1,32 +1,27 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import DashboardPage from './pages/DashboardPage'
 import AskAiPage from './pages/AskAiPage'
+import NotesListPage from './pages/NotesListPage'
+import CreateNotePage from './pages/CreateNotePage'
+import EditNotePage from './pages/EditNotePage'
 import PrivateRoute from './components/PrivateRoute'
 
-function App() {
+const App = () => {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
-        <Route
-          path="/dashboard"
-          element={
-//            <PrivateRoute>
-              <DashboardPage />
-//            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/ask"
-          element={
-//            <PrivateRoute>
-              <AskAiPage />
-//            </PrivateRoute>
-          }
-        />
+
+        <Route path="/dashboard" element={<PrivateRoute><DashboardPage /></PrivateRoute>} />
+        <Route path="/ask" element={<PrivateRoute><AskAiPage /></PrivateRoute>} />
+        <Route path="/notes" element={<PrivateRoute><NotesListPage /></PrivateRoute>} />
+        <Route path="/notes/create" element={<PrivateRoute><CreateNotePage /></PrivateRoute>} />
+        <Route path="/notes/:id/edit" element={<PrivateRoute><EditNotePage /></PrivateRoute>} />
+
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   )
