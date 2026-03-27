@@ -28,7 +28,9 @@ import { CommentSchema } from './schemas/comment.schema';
 @Module({
   imports: [
     // 1. Variables d'environnement (.env)
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
 
     // 2. Connexion MongoDB Atlas
     MongooseModule.forRoot(process.env.MONGODB_URI || ''),

@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
@@ -9,13 +10,19 @@ import { User, UserSchema } from '../schemas/user.schema';
 
 @Module({
   imports: [
+    ConfigModule,
+
     // Modèle User pour accéder à la collection users
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
 
     // Machine à fabriquer les tokens JWT
-    JwtModule.register({
-      secret: process.env.JWT_SECRET || 'dev-secret-change-me',
-      signOptions: { expiresIn: '24h' },
+    JwtModule.registerAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        secret:
+          configService.get<string>('JWT_SECRET') || 'dev-secret-change-me',
+        signOptions: { expiresIn: '24h' },
+      }),
     }),
 
     // Système Passport (obligatoire pour que JwtStrategy fonctionne)
