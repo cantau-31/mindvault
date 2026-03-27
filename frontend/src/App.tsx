@@ -15,11 +15,11 @@ const App = () => {
         <Route path="/" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
 
-        <Route path="/dashboard" element={<PrivateRoute><DashboardPage /></PrivateRoute>} />
+        <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/ask" element={<PrivateRoute><AskAiPage /></PrivateRoute>} />
-        <Route path="/notes" element={<PrivateRoute><NotesListPage /></PrivateRoute>} />
-        <Route path="/notes/create" element={<PrivateRoute><CreateNotePage /></PrivateRoute>} />
-        <Route path="/notes/:id/edit" element={<PrivateRoute><EditNotePage /></PrivateRoute>} />
+        <Route path="/notes" element={<NotesListPage />} />
+        <Route path="/notes/create" element={<CreateNotePage />} />
+        <Route path="/notes/:id/edit" element={<EditNotePage />} />
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
