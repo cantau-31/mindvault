@@ -14,17 +14,17 @@ function App() {
         <Route
           path="/dashboard"
           element={
-            <PrivateRoute>
+//            <PrivateRoute>
               <DashboardPage />
-            </PrivateRoute>
+//            </PrivateRoute>
           }
         />
         <Route
           path="/ask"
           element={
-            <PrivateRoute>
+//            <PrivateRoute>
               <AskAiPage />
-            </PrivateRoute>
+//            </PrivateRoute>
           }
         />
       </Routes>

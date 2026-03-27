@@ -14,7 +14,7 @@ interface Note {
 }
 
 const glassCard = {
-  background: 'rgba(255,255,255,0.55)',
+  background: 'rgba(14,165,233,0.15)',
   backdropFilter: 'blur(16px)',
   border: '1px solid rgba(255,255,255,0.85)',
   borderRadius: '16px',
@@ -32,7 +32,7 @@ export default function DashboardPage() {
   const [newContent, setNewContent] = useState('')
   const [aiResult, setAiResult] = useState<{ noteId: string; text: string } | null>(null)
   const [aiLoading, setAiLoading] = useState<string | null>(null)
-
+  const [importing, setImporting] = useState(false)
   const fetchNotes = async () => {
     try {
       const url = search ? `/notes/search?q=${search}` : '/notes'
@@ -81,6 +81,25 @@ export default function DashboardPage() {
     finally { setAiLoading(null) }
   }
 
+  const handleImportFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setImporting(true)
+    try {
+      const text = await file.text()
+      // Le nom du fichier devient le titre (sans extension)
+      const title = file.name.replace(/\.(txt|md)$/, '')
+      await api.post('/notes', { title, content: text, tags: [] })
+      fetchNotes()
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setImporting(false)
+      e.target.value = '' // reset l'input
+    }
+  }
+
   return (
     <div style={{ minHeight: '100vh', padding: '0 0 40px' }}>
 
@@ -97,14 +116,14 @@ export default function DashboardPage() {
         position: 'sticky',
         top: 0,
         zIndex: 100
-        }}>
+      }}>
         <span style={{
-            fontSize: '20px', fontWeight: '700',
-            background: 'linear-gradient(135deg, #0ea5e9, #6366f1)',
-            WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent'
+          fontSize: '20px', fontWeight: '700',
+          background: 'linear-gradient(135deg, #0ea5e9, #6366f1)',
+          WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent'
         }}>MindVault</span>
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-            <Link to="/ask" style={{
+          <Link to="/ask" style={{
             background: 'rgba(255,255,255,0.7)',
             border: '1px solid rgba(148,163,184,0.3)',
             borderRadius: '10px',
@@ -113,21 +132,41 @@ export default function DashboardPage() {
             color: '#475569',
             textDecoration: 'none',
             fontWeight: '500'
-            }}>✨ Demander à l'IA</Link>
-            <button
+          }}>✨ Demander à l'IA</Link>
+
+          <label style={{
+            background: 'rgba(255,255,255,0.7)',
+            border: '1px solid rgba(148,163,184,0.3)',
+            borderRadius: '10px',
+            padding: '8px 16px',
+            fontSize: '13px',
+            color: '#475569',
+            fontWeight: '500',
+            cursor: 'pointer'
+          }}>
+            {importing ? '⏳ Import...' : '📄 Importer'}
+            <input
+              type="file"
+              accept=".txt,.md"
+              onChange={handleImportFile}
+              style={{ display: 'none' }}
+            />
+          </label>
+
+          <button
             onClick={() => setShowForm(!showForm)}
             style={{
-                background: 'linear-gradient(135deg, #0ea5e9, #6366f1)',
-                color: 'white', border: 'none',
-                padding: '8px 18px', borderRadius: '10px',
-                fontSize: '13px', fontWeight: '600', cursor: 'pointer'
+              background: 'linear-gradient(135deg, #0ea5e9, #6366f1)',
+              color: 'white', border: 'none',
+              padding: '8px 18px', borderRadius: '10px',
+              fontSize: '13px', fontWeight: '600', cursor: 'pointer'
             }}
-            >+ Nouvelle note</button>
-            <button onClick={handleLogout} style={{ background: 'none', border: 'none', color: '#64748b', fontSize: '13px', cursor: 'pointer' }}>
+          >+ Nouvelle note</button>
+          <button onClick={handleLogout} style={{ background: 'none', border: 'none', color: '#d3d7dc', fontSize: '13px', cursor: 'pointer' }}>
             Déconnexion
-            </button>
+          </button>
         </div>
-        </nav>
+      </nav>
 
       <div style={{ maxWidth: '860px', margin: '0 auto', padding: '0 24px' }}>
 
@@ -156,7 +195,7 @@ export default function DashboardPage() {
             marginBottom: '24px',
             display: 'flex', flexDirection: 'column', gap: '14px'
           }}>
-            <h2 style={{ fontSize: '16px', fontWeight: '600', color: '#1e293b' }}>Nouvelle note</h2>
+            <h2 style={{ fontSize: '16px', fontWeight: '600', color: '#d1ddf1' }}>Nouvelle note</h2>
             <input
               type="text" placeholder="Titre" value={newTitle}
               onChange={(e) => setNewTitle(e.target.value)} required
@@ -168,7 +207,7 @@ export default function DashboardPage() {
               }}
             />
             <textarea
-              placeholder="Contenu (Markdown supporté)" value={newContent}
+              placeholder="Contenu" value={newContent}
               onChange={(e) => setNewContent(e.target.value)} rows={4} required
               style={{
                 padding: '11px 16px', borderRadius: '10px',
