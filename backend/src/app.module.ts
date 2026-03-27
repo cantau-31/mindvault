@@ -6,6 +6,9 @@ import { AiModule } from './ai/ai.module';
 import { NotesModule } from './notes/notes.module';
 import { CollectionsModule } from './collections/collections.module';
 import { SharedModule } from './shared/shared.module';
+import { NoteSchema } from './schemas/note.schema';
+import { CollectionSchema } from './schemas/collection.schema';
+import { CommentSchema } from './schemas/comment.schema';
 
 // ===================================================
 // STARTER KIT — Projet IPSSI MERN & TypeScript
@@ -30,14 +33,21 @@ import { SharedModule } from './shared/shared.module';
     // 2. Connexion MongoDB Atlas
     MongooseModule.forRoot(process.env.MONGODB_URI || ''),
 
-    // 3. Modules fournis
+    // 3. Modèles MongoDB (MindVault)
+    MongooseModule.forFeature([
+      { name: 'Note', schema: NoteSchema },
+      { name: 'Collection', schema: CollectionSchema },
+      { name: 'Comment', schema: CommentSchema },
+    ]),
+
+    // 4. Modules fournis
     AuthModule,
     AiModule,
     NotesModule,
     CollectionsModule,
     SharedModule,
 
-    // 4. Vos modules métier — ajoutez-les ici :
+    // 5. Vos modules métier — ajoutez-les ici :
     // EquipmentModule,    // SportLink
     // ReservationsModule, // SportLink
     // NotesModule,        // MindVault
